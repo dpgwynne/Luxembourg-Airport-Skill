@@ -8,6 +8,8 @@ http://amzn.to/1LGWsLG
 """
 
 from __future__ import print_function
+import requests
+import time
 
 
 # --------------- Helpers that build all of the responses ----------------------
@@ -65,20 +67,62 @@ def handle_session_end_request():
         card_title, speech_output, None, should_end_session))
 
 
+def spellOut(input):
+    return '<say-as interpret-as="spell-out">' + input + '</say-as>'
+
+
+def alexaifyEpoch(epoch):
+    return time.strftime('%H:%M', time.localtime(epoch))
+
+
+def alexaifyFlight(flight, isDeparture):
+    text = flight['airline'] + ' flight ' + spellOut(flight['flight']) + \
+           (' to ' if isDeparture else ' from ') + flight['destination'] + \
+           ', scheduled to ' + ('take off' if isDeparture else 'land') + \
+           ' at ' + alexaifyEpoch(flight['scheduled'])
+
+    if flight['status'] == 'Cancelled':
+        text = text + ' has been cancelled'
+    elif (flight['status'] == 'Delayed'):
+        text = text + ' is delayed'
+
+        if flight['real'] != 'null':
+            text = text + ' until ' + alexaifyEpoch(flight['real'])
+    else:
+        text = text + ' is on time'
+
+    text = text + '.'
+
+    return text
+
+
 def getDepartures(intent, session):
     session_attributes = {}
     reprompt_text      = None
-    speech_output      = "I should be telling you about departures."
+    speech_output      = ''
     should_end_session = True
+
+    request = requests.get('https://api.tfl.lu/v1/Airport/Departures')
+    data    = request.json()
+
+    for flight in data[:5]:
+        speech_output = speech_output + alexaifyFlight(flight, True))
     
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
         
+
 def getArrivals(intent, session):
     session_attributes = {}
     reprompt_text      = None
-    speech_output      = "I should be telling you about arrivals."
+    speech_output      = ''
     should_end_session = True
+    
+    request = requests.get('https://api.tfl.lu/v1/Airport/Arrivals')
+    data    = request.json()
+
+    for flight in data[:5]:
+        speech_output = speech_output + alexaifyFlight(flight, True))
     
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
