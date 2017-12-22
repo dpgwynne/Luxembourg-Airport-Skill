@@ -8,8 +8,8 @@ http://amzn.to/1LGWsLG
 """
 
 from __future__ import print_function
-#import requests
-#import time
+import requests
+import time
 
 
 # --------------- Helpers that build all of the responses ----------------------
@@ -102,13 +102,11 @@ def getDepartures(intent, session):
     speech_output      = ''
     should_end_session = True
 
-    #request = requests.get('https://api.tfl.lu/v1/Airport/Departures')
-    #data    = request.json()
+    request = requests.get('https://api.tfl.lu/v1/Airport/Departures')
+    data    = request.json()
 
-    #for flight in data[:5]:
-    #    speech_output = speech_output + alexaifyFlight(flight, True))
-    
-    speech_output = 'I should be telling you about departures'
+    for flight in data[:5]:
+        speech_output = speech_output + alexaifyFlight(flight, True))
     
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
@@ -120,13 +118,11 @@ def getArrivals(intent, session):
     speech_output      = ''
     should_end_session = True
     
-    #request = requests.get('https://api.tfl.lu/v1/Airport/Arrivals')
-    #data    = request.json()
+    request = requests.get('https://api.tfl.lu/v1/Airport/Arrivals')
+    data    = request.json()
 
-    #for flight in data[:5]:
-    #    speech_output = speech_output + alexaifyFlight(flight, True))
-    
-    speech_output = 'I should be telling you about arrivals'
+    for flight in data[:5]:
+        speech_output = speech_output + alexaifyFlight(flight, True))
     
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
