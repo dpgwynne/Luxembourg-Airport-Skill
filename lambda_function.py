@@ -8,8 +8,8 @@ http://amzn.to/1LGWsLG
 """
 
 from __future__ import print_function
-#import requests
-#import time
+from botocore.vendored import requests
+import time
 
 
 # --------------- Helpers that build all of the responses ----------------------
@@ -70,6 +70,9 @@ def handle_session_end_request():
 def spellOut(input):
     return '<say-as interpret-as="spell-out">' + input + '</say-as>'
 
+def pause(seconds):
+    return '<break time="' + str(seconds) + 's"/>'
+
 
 def alexaifyEpoch(epoch):
     return time.strftime('%H:%M', time.localtime(epoch))
@@ -102,13 +105,11 @@ def getDepartures(intent, session):
     speech_output      = ''
     should_end_session = True
 
-    #request = requests.get('https://api.tfl.lu/v1/Airport/Departures')
-    #data    = request.json()
+    request = requests.get('https://api.tfl.lu/v1/Airport/Departures')
+    data    = request.json()
 
-    #for flight in data[:5]:
-    #    speech_output = speech_output + alexaifyFlight(flight, True))
-    
-    speech_output = 'I should be telling you about departures'
+    for flight in data[:5]:
+        speech_output = speech_output + alexaifyFlight(flight, True) + pause(1)
     
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
@@ -120,13 +121,11 @@ def getArrivals(intent, session):
     speech_output      = ''
     should_end_session = True
     
-    #request = requests.get('https://api.tfl.lu/v1/Airport/Arrivals')
-    #data    = request.json()
+    request = requests.get('https://api.tfl.lu/v1/Airport/Arrivals')
+    data    = request.json()
 
-    #for flight in data[:5]:
-    #    speech_output = speech_output + alexaifyFlight(flight, True))
-    
-    speech_output = 'I should be telling you about arrivals'
+    for flight in data[:5]:
+        speech_output = speech_output + alexaifyFlight(flight, False) + pause(1)
     
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
