@@ -17,19 +17,8 @@ import time
 def build_speechlet_response(title, output, reprompt_text, should_end_session):
     return {
         'outputSpeech': {
-            'type': 'PlainText',
-            'text': output
-        },
-        'card': {
-            'type': 'Simple',
-            'title': "SessionSpeechlet - " + title,
-            'content': "SessionSpeechlet - " + output
-        },
-        'reprompt': {
-            'outputSpeech': {
-                'type': 'PlainText',
-                'text': reprompt_text
-            }
+            'type': 'SSML',
+            'ssml': '<speak>' + output + '</speak>'
         },
         'shouldEndSession': should_end_session
     }
@@ -108,6 +97,13 @@ def getDepartures(intent, session):
     request = requests.get('https://api.tfl.lu/v1/Airport/Departures')
     data    = request.json()
 
+    if len(data) == 0:
+        speech_output = 'There are no upcoming departures'
+    elif len(data) == 1:
+        speech_output = 'The only upcoming departure is ' + pause(1)
+    else:
+        speech_output = 'The next ' + str(min(len(data), 5)) + ' scheduled departures are ' + pause(1)
+
     for flight in data[:5]:
         speech_output = speech_output + alexaifyFlight(flight, True) + pause(1)
     
@@ -123,6 +119,13 @@ def getArrivals(intent, session):
     
     request = requests.get('https://api.tfl.lu/v1/Airport/Arrivals')
     data    = request.json()
+
+    if len(data) == 0:
+        speech_output = 'There are no upcoming arrivals'
+    elif len(data) == 1:
+        speech_output = 'The only upcoming arrival is ' + pause(1)
+    else:
+        speech_output = 'The next ' + str(min(len(data), 5)) + ' scheduled arrivals are ' + pause(1)
 
     for flight in data[:5]:
         speech_output = speech_output + alexaifyFlight(flight, False) + pause(1)
@@ -205,3 +208,11 @@ def lambda_handler(event, context):
         return on_intent(event['request'], event['session'])
     elif event['request']['type'] == "SessionEndedRequest":
         return on_session_ended(event['request'], event['session'])
+
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    intent = {'name' : 'GetDepartures'}
+    session = {}
+
+    print(getDepartures(intent, session))
