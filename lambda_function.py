@@ -174,9 +174,9 @@ def on_intent(intent_request, session):
     intent_name = intent_request['intent']['name']
 
     # Dispatch to your skill's intent handlers
-    if intent_name == "GetDepartures":
+    if intent_name == "GetDepartures" or intent_name == "GetDeparturesToCity":
         return getDepartures(intent, session)
-    elif intent_name == "GetArrivals":
+    elif intent_name == "GetArrivals" or intent_name == "GetArrivalsFromCity":
         return getArrivals(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
@@ -222,7 +222,8 @@ def lambda_handler(event, context):
 
 if __name__ == "__main__":
     # execute only if run as a script
-    intent = {'name' : 'GetArrivals', 'slots' : {'city' : {'value' : 'London'}}}
+    intent = {'name' : 'GetDeparturesToCity', 'slots' : {'city' : {'value' : 'London'}}}
+    #intent = {'name' : 'GetArrivals', 'slots' : {}}
     session = {}
 
-    print(getArrivals(intent, session))
+    print(getDepartures(intent, session))
