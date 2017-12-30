@@ -98,7 +98,7 @@ def getDepartures(intent, session):
     data    = request.json()
 
     cityOutput = ''
-    if 'city' in intent['slots']:
+    if 'slots' in intent and 'city' in intent['slots']:
         cityOutput = 'to ' + intent['slots']['city']['value']
         data = [x for x in data if intent['slots']['city']['value'].lower() in x['destination'].lower()]
 
@@ -126,7 +126,7 @@ def getArrivals(intent, session):
     data    = request.json()
 
     cityOutput = ''
-    if 'city' in intent['slots']:
+    if 'slots' in intent and 'city' in intent['slots']:
         cityOutput = 'from ' + intent['slots']['city']['value']
         data = [x for x in data if intent['slots']['city']['value'].lower() in x['destination'].lower()]
 
@@ -222,7 +222,8 @@ def lambda_handler(event, context):
 
 if __name__ == "__main__":
     # execute only if run as a script
-    intent = {'name' : 'GetDeparturesToCity', 'slots' : {'city' : {'value' : 'London'}}}
+    intent = {'name' : 'GetDepartures'}
+    #intent = {'name' : 'GetDeparturesToCity', 'slots' : {'city' : {'value' : 'London'}}}
     #intent = {'name' : 'GetArrivals', 'slots' : {}}
     session = {}
 
