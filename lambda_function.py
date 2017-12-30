@@ -97,12 +97,17 @@ def getDepartures(intent, session):
     request = requests.get('https://api.tfl.lu/v1/Airport/Departures')
     data    = request.json()
 
+    cityOutput = ''
+    if 'city' in intent['slots']:
+        cityOutput = 'to ' + intent['slots']['city']['value']
+        data = [x for x in data if intent['slots']['city']['value'].lower() in x['destination'].lower()]
+
     if len(data) == 0:
-        speech_output = 'There are no upcoming departures'
+        speech_output = 'There are no upcoming departures ' + cityOutput
     elif len(data) == 1:
-        speech_output = 'The only upcoming departure is ' + pause(1)
+        speech_output = 'The only upcoming departure ' + cityOutput + ' is ' + pause(1)
     else:
-        speech_output = 'The next ' + str(min(len(data), 5)) + ' scheduled departures are ' + pause(1)
+        speech_output = 'The next ' + str(min(len(data), 5)) + ' scheduled departures ' + cityOutput + ' are ' + pause(1)
 
     for flight in data[:5]:
         speech_output = speech_output + alexaifyFlight(flight, True) + pause(1)
@@ -116,16 +121,21 @@ def getArrivals(intent, session):
     reprompt_text      = None
     speech_output      = ''
     should_end_session = True
-    
+
     request = requests.get('https://api.tfl.lu/v1/Airport/Arrivals')
     data    = request.json()
 
+    cityOutput = ''
+    if 'city' in intent['slots']:
+        cityOutput = 'from ' + intent['slots']['city']['value']
+        data = [x for x in data if intent['slots']['city']['value'].lower() in x['destination'].lower()]
+
     if len(data) == 0:
-        speech_output = 'There are no upcoming arrivals'
+        speech_output = 'There are no upcoming arrivals ' + cityOutput
     elif len(data) == 1:
-        speech_output = 'The only upcoming arrival is ' + pause(1)
+        speech_output = 'The only upcoming arrival ' + cityOutput + ' is ' + pause(1)
     else:
-        speech_output = 'The next ' + str(min(len(data), 5)) + ' scheduled arrivals are ' + pause(1)
+        speech_output = 'The next ' + str(min(len(data), 5)) + ' scheduled arrivals ' + cityOutput + ' are ' + pause(1)
 
     for flight in data[:5]:
         speech_output = speech_output + alexaifyFlight(flight, False) + pause(1)
@@ -212,7 +222,7 @@ def lambda_handler(event, context):
 
 if __name__ == "__main__":
     # execute only if run as a script
-    intent = {'name' : 'GetDepartures'}
+    intent = {'name' : 'GetArrivals', 'slots' : {'city' : {'value' : 'London'}}}
     session = {}
 
-    print(getDepartures(intent, session))
+    print(getArrivals(intent, session))
