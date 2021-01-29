@@ -37,7 +37,7 @@ def build_response(session_attributes, speechlet_response):
 def get_welcome_response():
     session_attributes = {}
     card_title         = "Welcome"
-    speech_output      = "Welcome to the Luxembourg Airport Skill"
+    speech_output      = "Welcome to the Luxembourg Airport Skill by David Gwynne"
     reprompt_text      = None
     should_end_session = True
     
